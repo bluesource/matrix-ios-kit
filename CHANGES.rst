@@ -11,7 +11,7 @@ Changes to be released in next version
  * 
 
 ⚠️ API Changes
- * 
+ * Remove old showDecryptedContentInNotifications from MXKAccount
 
 🗣 Translations
  * 
