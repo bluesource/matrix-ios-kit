@@ -16,7 +16,7 @@
  */
 
 #import <Foundation/Foundation.h>
-#import <MatrixSDK/MatrixSDK.h>
+//#import <MatrixSDK/MatrixSDK.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
