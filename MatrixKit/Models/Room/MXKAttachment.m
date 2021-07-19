@@ -16,12 +16,12 @@
  */
 
 #import "MXKAttachment.h"
-#import "MXKSwiftHeader.h"
+//#import "MXKSwiftHeader.h"
 
 @import MatrixSDK;
 @import MobileCoreServices;
 
-#import "MXKTools.h"
+//#import "MXKTools.h"
 
 // The size of thumbnail we request from the server
 // Note that this is smaller than the ones we upload: when sending, one size
@@ -581,52 +581,52 @@ NSString *const kMXKAttachmentErrorDomain = @"kMXKAttachmentErrorDomain";
     }
 }
 
-- (void)copy:(void (^)(void))onSuccess failure:(void (^)(NSError *error))onFailure
-{
-    MXWeakify(self);
-    [self prepare:^{
-        MXStrongifyAndReturnIfNil(self);
-        if (self.type == MXKAttachmentTypeImage)
-        {
-            [self getImage:^(MXKAttachment *attachment, UIImage *img) {
-                MXKPasteboardManager.shared.pasteboard.image = img;
-                if (onSuccess)
-                {
-                    onSuccess();
-                }
-            } failure:^(MXKAttachment *attachment, NSError *error) {
-                if (onFailure) onFailure(error);
-            }];
-        }
-        else
-        {
-            MXWeakify(self);
-            [self getAttachmentData:^(NSData *data) {
-                if (data)
-                {
-                    MXStrongifyAndReturnIfNil(self);
-                    NSString* UTI = (__bridge_transfer NSString *) UTTypeCreatePreferredIdentifierForTag(kUTTagClassFilenameExtension, (__bridge CFStringRef)[self.cacheFilePath pathExtension] , NULL);
-                    
-                    if (UTI)
-                    {
-                        [MXKPasteboardManager.shared.pasteboard setData:data forPasteboardType:UTI];
-                        if (onSuccess)
-                        {
-                            onSuccess();
-                        }
-                    }
-                }
-            } failure:onFailure];
-        }
-        
-        // Unexpected error
-        if (onFailure)
-        {
-            onFailure(nil);
-        }
-        
-    } failure:onFailure];
-}
+//- (void)copy:(void (^)(void))onSuccess failure:(void (^)(NSError *error))onFailure
+//{
+//    MXWeakify(self);
+//    [self prepare:^{
+//        MXStrongifyAndReturnIfNil(self);
+//        if (self.type == MXKAttachmentTypeImage)
+//        {
+//            [self getImage:^(MXKAttachment *attachment, UIImage *img) {
+//                MXKPasteboardManager.shared.pasteboard.image = img;
+//                if (onSuccess)
+//                {
+//                    onSuccess();
+//                }
+//            } failure:^(MXKAttachment *attachment, NSError *error) {
+//                if (onFailure) onFailure(error);
+//            }];
+//        }
+//        else
+//        {
+//            MXWeakify(self);
+//            [self getAttachmentData:^(NSData *data) {
+//                if (data)
+//                {
+//                    MXStrongifyAndReturnIfNil(self);
+//                    NSString* UTI = (__bridge_transfer NSString *) UTTypeCreatePreferredIdentifierForTag(kUTTagClassFilenameExtension, (__bridge CFStringRef)[self.cacheFilePath pathExtension] , NULL);
+//                    
+//                    if (UTI)
+//                    {
+//                        [MXKPasteboardManager.shared.pasteboard setData:data forPasteboardType:UTI];
+//                        if (onSuccess)
+//                        {
+//                            onSuccess();
+//                        }
+//                    }
+//                }
+//            } failure:onFailure];
+//        }
+//        
+//        // Unexpected error
+//        if (onFailure)
+//        {
+//            onFailure(nil);
+//        }
+//        
+//    } failure:onFailure];
+//}
 
 - (void)prepareShare:(void (^)(NSURL *fileURL))onReadyToShare failure:(void (^)(NSError *error))onFailure
 {
