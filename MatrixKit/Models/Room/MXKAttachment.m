@@ -32,6 +32,7 @@ static const int kThumbnailWidth = 320;
 static const int kThumbnailHeight = 240;
 
 NSString *const kMXKAttachmentErrorDomain = @"kMXKAttachmentErrorDomain";
+NSString *const kMXKAttachmentFileNameBase = @"attatchment";
 
 @interface MXKAttachment ()
 {
@@ -290,17 +291,18 @@ NSString *const kMXKAttachmentErrorDomain = @"kMXKAttachmentErrorDomain";
             MXStrongifyAndReturnIfNil(self);
             NSInputStream *instream = [[NSInputStream alloc] initWithFileAtPath:self.thumbnailCachePath];
             NSOutputStream *outstream = [[NSOutputStream alloc] initToMemory];
-            NSError *err = [MXEncryptedAttachments decryptAttachment:self->thumbnailFile inputStream:instream outputStream:outstream];
-            if (err) {
-                MXLogDebug(@"Error decrypting attachment! %@", err.userInfo);
-                if (onFailure) onFailure(self, err);
-                return;
-            }
-            
-            UIImage *img = [UIImage imageWithData:[outstream propertyForKey:NSStreamDataWrittenToMemoryStreamKey]];
-            // Save this image to in-memory cache.
-            [MXMediaManager cacheImage:img withCachePath:self.thumbnailCachePath];
-            onSuccess(self, img);
+            [MXEncryptedAttachments decryptAttachment:self->thumbnailFile inputStream:instream outputStream:outstream success:^{
+                UIImage *img = [UIImage imageWithData:[outstream propertyForKey:NSStreamDataWrittenToMemoryStreamKey]];
+                // Save this image to in-memory cache.
+                [MXMediaManager cacheImage:img withCachePath:self.thumbnailCachePath];
+                onSuccess(self, img);
+            } failure:^(NSError *err) {
+                if (err) {
+                    MXLogDebug(@"Error decrypting attachment! %@", err.userInfo);
+                    if (onFailure) onFailure(self, err);
+                    return;
+                }
+            }];
         };
         
         if ([[NSFileManager defaultManager] fileExistsAtPath:_thumbnailCachePath])
@@ -398,13 +400,15 @@ NSString *const kMXKAttachmentErrorDomain = @"kMXKAttachmentErrorDomain";
             // decrypt the encrypted file
             NSInputStream *instream = [[NSInputStream alloc] initWithFileAtPath:self.cacheFilePath];
             NSOutputStream *outstream = [[NSOutputStream alloc] initToMemory];
-            NSError *err = [MXEncryptedAttachments decryptAttachment:self->contentFile inputStream:instream outputStream:outstream];
-            if (err)
-            {
-                MXLogDebug(@"Error decrypting attachment! %@", err.userInfo);
-                return;
-            }
-            onSuccess([outstream propertyForKey:NSStreamDataWrittenToMemoryStreamKey]);
+            [MXEncryptedAttachments decryptAttachment:self->contentFile inputStream:instream outputStream:outstream success:^{
+                onSuccess([outstream propertyForKey:NSStreamDataWrittenToMemoryStreamKey]);
+            } failure:^(NSError *err) {
+                if (err)
+                {
+                    MXLogDebug(@"Error decrypting attachment! %@", err.userInfo);
+                    return;
+                }
+            }];
         }
         else
         {
@@ -428,12 +432,14 @@ NSString *const kMXKAttachmentErrorDomain = @"kMXKAttachmentErrorDomain";
         NSInputStream *inStream = [NSInputStream inputStreamWithFileAtPath:self.cacheFilePath];
         NSOutputStream *outStream = [NSOutputStream outputStreamToFileAtPath:tempPath append:NO];
         
-        NSError *err = [MXEncryptedAttachments decryptAttachment:self->contentFile inputStream:inStream outputStream:outStream];
-        if (err) {
-            if (onFailure) onFailure(err);
-            return;
-        }
-        onSuccess(tempPath);
+        [MXEncryptedAttachments decryptAttachment:self->contentFile inputStream:inStream outputStream:outStream success:^{
+            onSuccess(tempPath);
+        } failure:^(NSError *err) {
+            if (err) {
+                if (onFailure) onFailure(err);
+                return;
+            }
+        }];
     } failure:onFailure];
 }
 
@@ -442,7 +448,7 @@ NSString *const kMXKAttachmentErrorDomain = @"kMXKAttachmentErrorDomain";
     // create a file with an appropriate extension because iOS detects based on file extension
     // all over the place
     NSString *ext = [MXTools fileExtensionFromContentType:mimetype];
-    NSString *filenameTemplate = [NSString stringWithFormat:@"attatchment.XXXXXX%@", ext];
+    NSString *filenameTemplate = [NSString stringWithFormat:@"%@.XXXXXX%@", kMXKAttachmentFileNameBase, ext];
     NSString *template = [NSTemporaryDirectory() stringByAppendingPathComponent:filenameTemplate];
     
     const char *templateCstr = [template fileSystemRepresentation];
@@ -462,6 +468,25 @@ NSString *const kMXKAttachmentErrorDomain = @"kMXKAttachmentErrorDomain";
     return tempPath;
 }
 
++ (void)clearCache
+{
+    NSString *temporaryDirectoryPath = NSTemporaryDirectory();
+    NSDirectoryEnumerator<NSString *> *enumerator = [NSFileManager.defaultManager enumeratorAtPath:temporaryDirectoryPath];
+    
+    NSString *filePath;
+    while (filePath = [enumerator nextObject]) {
+        if(![filePath containsString:kMXKAttachmentFileNameBase]) {
+            continue;
+        }
+        
+        NSError *error;
+        BOOL result = [NSFileManager.defaultManager removeItemAtPath:[temporaryDirectoryPath stringByAppendingPathComponent:filePath] error:&error];
+        if (!result && error) {
+            MXLogError(@"[MXKAttachment] Failed deleting temporary file with error: %@", error);
+        }
+    }
+}
+
 - (void)prepare:(void (^)(void))onAttachmentReady failure:(void (^)(NSError *error))onFailure
 {
     if ([[NSFileManager defaultManager] fileExistsAtPath:_cacheFilePath])
@@ -469,7 +494,7 @@ NSString *const kMXKAttachmentErrorDomain = @"kMXKAttachmentErrorDomain";
         // Done
         if (onAttachmentReady)
         {
-            onAttachmentReady ();
+            onAttachmentReady();
         }
     }
     else
