@@ -1,3 +1,72 @@
+## Changes in 0.16.3 (2021-09-28)
+
+🙌 Improvements
+
+- Upgrade MatrixSDK version ([v0.20.3](https://github.com/matrix-org/matrix-ios-sdk/releases/tag/v0.20.3)).
+- Exposed new room name localizable string to use for empty direct messages. ([#4717](https://github.com/vector-im/element-ios/issues/4717))
+
+
+## Changes in 0.16.2 (2021-09-24)
+
+✨ Features
+
+- Added device de/rehydration supporting flows. ([#4255](https://github.com/vector-im/element-ios/issues/4255))
+- Support for space link. ([#4498](https://github.com/vector-im/element-ios/issues/4498))
+- Add suggested rooms and support for suggested room selection to the list of recent cell data ([#4501](https://github.com/vector-im/element-ios/issues/4501))
+- moved space filtering to MatrixKit. ([#4509](https://github.com/vector-im/element-ios/issues/4509))
+- Tweaked `MXKRoomMemberDetailsViewController` so we can hide leave option ([#4682](https://github.com/vector-im/element-ios/issues/4682))
+
+🙌 Improvements
+
+- Upgrade MatrixSDK version ([v0.20.2](https://github.com/matrix-org/matrix-ios-sdk/releases/tag/v0.20.2)).
+
+🐛 Bugfixes
+
+- MXKAppSettings: Return matrix.to when firstURLDetectionIgnoredHosts is nil, and store an empty array when setting nil. ([#4826](https://github.com/vector-im/element-ios/issues/4826))
+
+⚠️ API Changes
+
+- Dropped support for iOS versions 11 and lower. ([#4693](https://github.com/vector-im/element-ios/issues/4693))
+- Exposed more room joining result types in the completion handler. ([#4830](https://github.com/vector-im/element-ios/issues/4830))
+
+
+## Changes in 0.16.1 (2021-09-16)
+
+🙌 Improvements
+
+- Upgrade MatrixSDK version ([v0.20.1](https://github.com/matrix-org/matrix-ios-sdk/releases/tag/v0.20.1)).
+- MXKRoomDataSource: Add logs to better understand local echo lifecycle. ([#1771](https://github.com/vector-im/element-ios/issues/1771))
+- MXKAccount: Use new `pauseable` property of MXSession to check the session is suitable for pausing. ([#4834](https://github.com/vector-im/element-ios/issues/4834))
+
+🐛 Bugfixes
+
+- MXKRoomDataSource: Fix missing local echos. ([#1771](https://github.com/vector-im/element-ios/issues/1771))
+- MXKRoomViewController: Mark room as read when displayed. ([#4822](https://github.com/vector-im/element-ios/issues/4822))
+
+
+## Changes in 0.16.0 (2021-09-09)
+
+✨ Features
+
+- MXKRoomBubbleComponent: Add link property and parse message events for links that could be previewed. ([#888](https://github.com/vector-im/element-ios/issues/888))
+- MXKTools: Add +videoConversionPromptForVideoAsset:withCompletion: to create a UIAlertController with appropriate presets. ([#4638](https://github.com/vector-im/element-ios/issues/4638))
+
+🙌 Improvements
+
+- Upgrade MatrixSDK version ([v0.20.0](https://github.com/matrix-org/matrix-ios-sdk/releases/tag/v0.20.0)).
+- MXKRoomDataSource: Adapt to new async `MXRoom.getEventReceipts` method. ([#4383](https://github.com/vector-im/element-ios/issues/4383))
+
+🐛 Bugfixes
+
+- MXKRoomDataSource: Fix threading on processQueuedEvents method at the end of the process. ([#4788](https://github.com/vector-im/element-ios/issues/4788))
+- Authentication screen: Unexpected request to access the contact book ([#4803](https://github.com/vector-im/element-ios/issues/4803))
+
+Others
+
+- MXKAttachment: Added method for deleting all previously created temporary, decrypted attachments. ([#887](https://github.com/matrix-org/matrix-ios-kit/pull/887))
+- Git: Add .DS_Store to .gitignore. ([#892](https://github.com/matrix-org/matrix-ios-kit/pull/892))
+
+
 ## Changes in 0.15.8 (2021-08-26)
 
 🙌 Improvements
